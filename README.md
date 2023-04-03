@@ -30,10 +30,11 @@ This project provides the following:
 2) Create a stack with new resources
 3) Specify the S3 url as https://tioth-chatgpt-plugin-resources-us-east-1.s3.us-east-1.amazonaws.com/primary.yaml and click on next
 4) Give your stack a name such as "qnabot-chatgpt-plugin"
-5) Provide your OpenaiApiKey. If you don't have an openai account or key visit https://chat.openai.com/auth/login and setup your account
 6) Change the model to an available chatgpt model if you want to use something other than 'gpt-3.5-turbo'
-7) Change the MessageCacheExpirationInHours if needed. This is the length that a users prior messages will be mainttained and sent to chatgpt as context for the current message
+7) Change the MessageCacheExpirationInHours if needed. This is the length that a users prior messages will be maintained and sent to chatgpt as context for the current message
 8) Click on next and finish launching the new stack
+9) After the Stack finishes deployment open the AWS Secrets Manager console and open the secret QNA-chatgpt-openai-api-key
+10) Set the secret value to your OpenaiApiKey. If you don't have an openai account or key visit https://chat.openai.com/auth/login and setup your account
 9) Download the file https://tioth-chatgpt-plugin-resources-us-east-1.s3.us-east-1.amazonaws.com/chatgpt-plugin-qna.json 
 10) Import this file to QnABot using the Designer UI.
 11) Modify the questions as needed.
@@ -53,7 +54,7 @@ This assumes you have some familiarity with the terraform cli in a Linux environ
 
 1) Clone this repo
 2) Create a file at the root level of this repo named "variables.tf" and add the following being sure to change the variables
-for target_deployment_region, deployment_bucket_basename, openai_api_key, message_cache_expiration_in_hours, and project. The 
+for target_deployment_region, deployment_bucket_basename, message_cache_expiration_in_hours, and project. The 
 target_deployment_region should be the same as where QnABot is deployed. 
 
 ```
@@ -63,11 +64,6 @@ variable "target_deployment_region" {
 }
 
 variable "deployment_bucket_basename" {
-  type = string
-  default = ""
-}
-
-variable "openai_api_key" {
   type = string
   default = ""
 }
@@ -102,7 +98,8 @@ terraform init
 terraform apply
 ```
 
-7) If you change the project variable to something other than "chatgpt" you will need to change the Lambda used in
+7) After terraform apply finishes deployment, log into your AWS account and open the AWS Secrets Manager console. Open the secret QNA-chatgpt-openai-api-key and set the value to your OpenAI API Key. If you don't have an openai account or key visit https://chat.openai.com/auth/login and setup your account
+8) If you change the project variable to something other than "chatgpt" you will need to change the Lambda used in
 the two questions the lambda. These are ChatGPT.1 and ChatGPT.2.
 8) Import the chatgpt-plugin-qna.json to QnABot using your Designer UI.
 9) Modify the questions as needed. 

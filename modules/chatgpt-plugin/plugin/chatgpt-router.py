@@ -15,15 +15,24 @@ import time
 
 # dynamodb_client used globally
 dynamodb_client = boto3.client('dynamodb')
+secretsmanager_client = boto3.client('secretsmanager')
 message_cache_expiration_in_hours = int(os.environ['MESSAGE_CACHE_EXPIRATION_IN_HOURS'])
 chatgpt_model = os.environ['CHATGPT_MODEL']
+
+
+# function to obtain openai api key from secrets manager
+def get_secret(secret_name):
+    print("getting secret for " + secret_name)
+    response = secretsmanager_client.get_secret_value(SecretId=secret_name)
+    secret = response['SecretString']
+    return secret
 
 
 #
 # Call openai chat api sending messages for a chat response
 #
 def route_to_chatgpt(messages):
-    openai.api_key = os.environ['OPENAI_API_KEY']
+    openai.api_key = get_secret(os.environ['OPENAI_API_KEY_SECRET_ID'])
     res = openai.ChatCompletion.create(
         model=chatgpt_model,
         messages=messages

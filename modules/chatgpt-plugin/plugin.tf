@@ -46,6 +46,14 @@ resource "aws_iam_role_policy" "qnabot_chat_gpt_plugin_policy" {
             "dynamodb:Query"
         ],
         "Resource": "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/QNA-${local.base_prefix}-user-cache"
+      },
+      {
+        "Sid": "SecretsManager",
+        "Effect": "Allow",
+        "Action": [
+            "secretsmanager:GetSecretValue"
+        ],
+        "Resource": "${aws_secretsmanager_secret.openai_api_key.id}"
       }
     ]
   }
@@ -89,6 +97,12 @@ resource "aws_dynamodb_table" "chatgpt-user-message-cache" {
   }
 }
 
+resource "aws_secretsmanager_secret" "openai_api_key" {
+  description = "Resource that holds the openai api key to use for calling openai"
+  name = "QNA-${local.base_prefix}-openai-api-key"
+  recovery_window_in_days = 7
+}
+
 resource "aws_lambda_layer_version" "qnabot_plugin_layer" {
   layer_name = "QNA-${local.base_prefix}-qnabot-plugin-layer"
   filename = data.archive_file.qnabot_plugin_layer.output_path
@@ -111,7 +125,7 @@ resource "aws_lambda_function" "QNA-ChatGptRouter" {
   environment {
     variables = {
       ACCOUNT = data.aws_caller_identity.current.account_id
-      OPENAI_API_KEY = var.openai_api_key
+      OPENAI_API_KEY_SECRET_ID = aws_secretsmanager_secret.openai_api_key.name
       CHATGPT_MODEL = var.chatgpt_model
       DYNAMODB_USER_MESSAGE_CACHE = aws_dynamodb_table.chatgpt-user-message-cache.name
       MESSAGE_CACHE_EXPIRATION_IN_HOURS = var.message_cache_expiration_in_hours

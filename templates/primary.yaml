@@ -62,6 +62,15 @@ Resources:
                   - dynamodb:Query
                 Resource:
                   - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/QNA-chatgpt-user-cache"
+        - PolicyName: SecretsManager
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !Ref OpenAiApiKeySecret
 
   DynamoDBUserMessageCacheTable:
     Type: "AWS::DynamoDB::Table"
@@ -82,6 +91,12 @@ Resources:
         AttributeName: "messageTimeout"
         Enabled: true
 
+  OpenAiApiKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Resource that holds the openai api key to use for calling openai
+      Name: "QNA-chatgpt-openai-api-key"
+
   LambdaLayerVersion:
     Type: "AWS::Lambda::LayerVersion"
     Properties:
@@ -101,7 +116,7 @@ Resources:
         Variables:
           ACCOUNT: !Ref AWS::AccountId
           DYNAMODB_USER_MESSAGE_CACHE: !Ref DynamoDBUserMessageCacheTable
-          OPENAI_API_KEY: !Ref OpenaiApiKey
+          OPENAI_API_KEY_SECRET_ID: "QNA-chatgpt-openai-api-key"
           MESSAGE_CACHE_EXPIRATION_IN_HOURS: !Ref MessageCacheExpirationInHours
           CHATGPT_MODEL: !Ref ChatGptModel
       FunctionName: "QNA-chatgpt-qnabot-router"

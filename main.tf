@@ -1,6 +1,5 @@
 module "chatgpt-plugin" {
   source     = "./modules/chatgpt-plugin"
-  openai_api_key = var.openai_api_key
   region = var.target_deployment_region
   project = var.project
   message_cache_expiration_in_hours = var.message_cache_expiration_in_hours

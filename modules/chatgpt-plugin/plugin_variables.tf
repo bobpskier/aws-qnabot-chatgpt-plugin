@@ -7,10 +7,6 @@ variable "project" {
   default = "chatgpt"
 }
 
-variable "openai_api_key" {
-  type = string
-}
-
 variable "message_cache_expiration_in_hours" {
   type = number
   default = 8
