@@ -53,8 +53,8 @@ This assumes you have some familiarity with the terraform cli in a Linux environ
 
 1) Clone this repo
 2) Create a file at the root level of this repo named "variables.tf" and add the following being sure to change the variables
-for region, deployment_bucket, openai_api_key, message_cache_expiration_in_hours, and project. Specify the region as
-the region where QnABot is deployed. 
+for target_deployment_region, deployment_bucket_basename, openai_api_key, message_cache_expiration_in_hours, and project. The 
+target_deployment_region should be the same as where QnABot is deployed. 
 
 ```
 variable "target_deployment_region" {
@@ -83,7 +83,8 @@ variable "project" {
 }
 ```
 
-3) Setup the lambda plugin layer using the setup.sh script which calls pip to install requirements.txt
+3) Edit main.tf and comment out or remove all the modules which deploy to specific regions. The only active module in main.tf should be "chatgpt-plugin". The rest are not needed.
+4) Setup the lambda plugin layer using the setup.sh script which calls pip to install requirements.txt
 
 ```
 cd build
@@ -93,24 +94,24 @@ cd build
 ```
 
 ```
-4) Login via CLI to your AWS Account
-5) Install via terraform
+5) Login via CLI to your AWS Account
+6) Install via terraform
 
 ```
 terraform init
 terraform apply
 ```
 
-6) If you change the project variable to something other than "chatgpt" you will need to change the Lambda used in
+7) If you change the project variable to something other than "chatgpt" you will need to change the Lambda used in
 the two questions the lambda. These are ChatGPT.1 and ChatGPT.2.
-7) Import the chatgpt-plugin-qna.json to QnABot using your Designer UI.
-8) Modify the questions as needed. 
-9) ChatGPT.1 is used to initiate routing to ChatGPT. Users can say the following phrases to initiate a conversation with ChatGPT. You can modify this list in the Designer UI.
+8) Import the chatgpt-plugin-qna.json to QnABot using your Designer UI.
+9) Modify the questions as needed. 
+10) ChatGPT.1 is used to initiate routing to ChatGPT. Users can say the following phrases to initiate a conversation with ChatGPT. You can modify this list in the Designer UI.
 * "I'd like to speak with chatgpt",
 * "I'd like to speak with chat gpt",
 * "talk to chatgpt",
 * "chat with chatgpt",
 * "chat gpt"
-10) CustomNoMatches provides the no_hits functionality and pops up a Question and Button for the user to ask if the user wants to continue chatting with ChatGPT. Selecting yes will chain to the ChatGPT.2 question to continue the conversation.
-11) If you don't want to use ChatGPT as a fallback mechanism, then delete CustomNoMatches from QnABot.
-12) ChatGPT.2 is used by CustomNoMatches. 
+11) CustomNoMatches provides the no_hits functionality and pops up a Question and Button for the user to ask if the user wants to continue chatting with ChatGPT. Selecting yes will chain to the ChatGPT.2 question to continue the conversation.
+12) If you don't want to use ChatGPT as a fallback mechanism, then delete CustomNoMatches from QnABot.
+13) ChatGPT.2 is used by CustomNoMatches. 
