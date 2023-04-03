@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  Primary QnABot ChatGPT Plugin CloudFormation template (v1.0.0)
+  This template deploys resources to allow QnABot to use OpenAI ChatGPT to answer questions. Presently,
+  the implementation supports a configurable CHATGPT_MODEL which defaults to "gpt-3.5-turbo"
+  It deploys:
+      - A Lambda Layer
+      - A Lambda function
+      - A DynamoDB table
+      - IAM Role / Policy used by the Lambda function
+
+Parameters:
+  OpenaiApiKey:
+    Description: >
+      The OpenAI API Key to use on requests
+    Type: String
+
+  ChatGptModel:
+    Description: >
+      The ChatGpt Model used for API requests
+    Type: String
+    Default: "gpt-3.5-turbo"
+
+  MessageCacheExpirationInHours:
+    Description: >
+      Time in hours that user message history should be preserved
+    Type: Number
+    Default: 8
+
+Resources:
+  ChatGPTRouterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Principal:
+              Service:
+                - lambda.amazonaws.com
+            Effect: Allow
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: CloudWatchLogs
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+        - PolicyName: DynamoDB
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/QNA-chatgpt-user-cache"
+
+  DynamoDBUserMessageCacheTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "messageTimeout"
+          AttributeType: "N"
+        - AttributeName: "userid"
+          AttributeType: "S"
+      BillingMode: "PAY_PER_REQUEST"
+      TableName: "QNA-chatgpt-user-cache"
+      KeySchema:
+        - AttributeName: "userid"
+          KeyType: "HASH"
+        - AttributeName: "messageTimeout"
+          KeyType: "RANGE"
+      TimeToLiveSpecification:
+        AttributeName: "messageTimeout"
+        Enabled: true
+
+  LambdaLayerVersion:
+    Type: "AWS::Lambda::LayerVersion"
+    Properties:
+      Description: ""
+      CompatibleRuntimes:
+        - "python3.9"
+      LayerName: "QNA-chatgpt-qnabot-plugin-layer"
+      Content:
+        S3Bucket: "tioth-chatgpt-plugin-resources-${AWS::Region}"
+        S3Key: "plugin-layer.zip"
+
+  LambdaFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: ""
+      Environment:
+        Variables:
+          ACCOUNT: !Ref AWS::AccountId
+          DYNAMODB_USER_MESSAGE_CACHE: !Ref DynamoDBUserMessageCacheTable
+          OPENAI_API_KEY: !Ref OpenaiApiKey
+          MESSAGE_CACHE_EXPIRATION_IN_HOURS: !Ref MessageCacheExpirationInHours
+          CHATGPT_MODEL: !Ref ChatGptModel
+      FunctionName: "QNA-chatgpt-qnabot-router"
+      Handler: "chatgpt-router.lambda_handler"
+      Architectures:
+        - "x86_64"
+      Code:
+        S3Bucket: "tioth-chatgpt-plugin-resources-${AWS::Region}"
+        S3Key: "plugin.zip"
+      MemorySize: 256
+      Role: !GetAtt ChatGPTRouterRole.Arn
+      Runtime: "python3.9"
+      Timeout: 120
+      TracingConfig:
+        Mode: "PassThrough"
+      Layers:
+        - !Ref LambdaLayerVersion
+      EphemeralStorage:
+        Size: 512

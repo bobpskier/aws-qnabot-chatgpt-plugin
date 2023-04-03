@@ -1,0 +1,57 @@
+﻿{
+  "qna": [
+    {
+      "a": "Great. Lets get you in touch. You are now chatting with chatgpt. When you are finished conversing with chatgpt, just type or say \"exit\", \"quit\" , or \"goodbye\".",
+      "alt": {
+        "markdown": "Great. Lets get you in touch. You are **now chatting** with chatgpt.  When you are finished conversing with chatgpt, just type or say **\"exit\", \"quit\" , or \"goodbye\"**."
+      },
+      "type": "qna",
+      "qid": "ChatGPT.1",
+      "botRouting": {
+        "specialty_bot": "Lambda::QNA-chatgpt-qnabot-router",
+        "specialty_bot_name": "ChatGPT"
+      },
+      "q": [
+        "I'd like to speak with chatgpt",
+        "i'd like to speak with chat gpt",
+        "talk to chatgpt",
+        "chat with chatgpt",
+        "chat gpt"
+      ]
+    },
+    {
+      "args": [
+        "QID::ChatGPT.2"
+      ],
+      "a": "I didn't know the answer however ChatGPT provided the following:",
+      "r": {
+        "subTitle": "Continue conversation with ChatGPT?",
+        "title": "Options"
+      },
+      "alt": {
+        "markdown": "I didn't know the answer however ChatGPT provided the following:"
+      },
+      "l": "QNA-chatgpt-qnabot-router",
+      "type": "qna",
+      "qid": "CustomNoMatches",
+      "q": [
+        "no_hits"
+      ]
+    },
+    {
+      "a": "Great. You are now chatting with chatgpt. When you are finished conversing with chatgpt, just type or say \"exit\", \"quit\" , or \"goodbye\".",
+      "alt": {
+        "markdown": "Great. You are **now chatting** with chatgpt.  When you are finished conversing with chatgpt, just type or say **\"exit\", \"quit\" , or \"goodbye\"**."
+      },
+      "type": "qna",
+      "qid": "ChatGPT.2",
+      "botRouting": {
+        "specialty_bot": "Lambda::QNA-chatgpt-qnabot-router",
+        "specialty_bot_name": "ChatGPT"
+      },
+      "q": [
+        "Continue conversation with ChatGPT"
+      ]
+    }
+  ]
+}
