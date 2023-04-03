@@ -4,3 +4,4 @@
 .terraform/
 *.zip
 venv/
+modules/chatgpt-plugin/plugin-layer/python/
