@@ -10,11 +10,6 @@ Description: |
       - IAM Role / Policy used by the Lambda function
 
 Parameters:
-  OpenaiApiKey:
-    Description: >
-      The OpenAI API Key to use on requests
-    Type: String
-
   ChatGptModel:
     Description: >
       The ChatGpt Model used for API requests
