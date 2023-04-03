@@ -57,12 +57,12 @@ for region, deployment_bucket, openai_api_key, message_cache_expiration_in_hours
 the region where QnABot is deployed. 
 
 ```
-variable "region" {
+variable "target_deployment_region" {
   type = string
   default = ""
 }
 
-variable "deployment_bucket" {
+variable "deployment_bucket_basename" {
   type = string
   default = ""
 }
@@ -81,10 +81,6 @@ variable "project" {
   type = string
   default = "chatgpt"
 }
-```
-
-```
-git clone 
 ```
 
 3) Setup the lambda plugin layer using the setup.sh script which calls pip to install requirements.txt
