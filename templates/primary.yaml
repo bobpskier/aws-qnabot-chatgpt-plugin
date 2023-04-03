@@ -90,7 +90,7 @@ Resources:
         - "python3.9"
       LayerName: "QNA-chatgpt-qnabot-plugin-layer"
       Content:
-        S3Bucket: "tioth-chatgpt-plugin-resources-${AWS::Region}"
+        S3Bucket: !Sub "tioth-chatgpt-plugin-resources-${AWS::Region}"
         S3Key: "plugin-layer.zip"
 
   LambdaFunction:
@@ -109,7 +109,7 @@ Resources:
       Architectures:
         - "x86_64"
       Code:
-        S3Bucket: "tioth-chatgpt-plugin-resources-${AWS::Region}"
+        S3Bucket: !Sub "tioth-chatgpt-plugin-resources-${AWS::Region}"
         S3Key: "plugin.zip"
       MemorySize: 256
       Role: !GetAtt ChatGPTRouterRole.Arn
