@@ -16,3 +16,8 @@ variable "chatgpt_model" {
   type = string
   default = "gpt-3.5-turbo"
 }
+
+variable "embedding_model" {
+  type = string
+  default = "text-embedding-ada-002"
+}

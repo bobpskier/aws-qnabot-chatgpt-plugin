@@ -60,6 +60,58 @@ resource "aws_iam_role_policy" "qnabot_chat_gpt_plugin_policy" {
   EOF
 }
 
+resource "aws_iam_role" "qnabot_embedding_role" {
+  name = "${local.base_prefix}-qnabot-embedding"
+  assume_role_policy = <<-EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Action": "sts:AssumeRole",
+        "Principal": {
+          "Service": "lambda.amazonaws.com"
+        },
+        "Effect": "Allow",
+        "Sid": ""
+      }
+    ]
+  }
+  EOF
+}
+
+# Define iam role policy for embeddings
+#
+resource "aws_iam_role_policy" "qnabot_chat_gpt_embedding_policy" {
+  name = "${local.base_prefix}-qnabot-embedding-policy"
+  role = aws_iam_role.qnabot_embedding_role.id
+
+  policy = <<-EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "LambdaWriteToCloudWatch",
+        "Effect": "Allow",
+        "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+        ],
+        "Resource": "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:*"
+      },
+      {
+        "Sid": "SecretsManager",
+        "Effect": "Allow",
+        "Action": [
+            "secretsmanager:GetSecretValue"
+        ],
+        "Resource": "${aws_secretsmanager_secret.openai_api_key.id}"
+      }
+    ]
+  }
+  EOF
+}
+
 data "archive_file" "qnabot_plugin_layer" {
   type = "zip"
   source_dir = "${path.module}/plugin-layer"
@@ -113,7 +165,7 @@ resource "aws_lambda_layer_version" "qnabot_plugin_layer" {
 # Define the Lambda function to handle updates to the QnABot Stack
 resource "aws_lambda_function" "QNA-ChatGptRouter" {
   function_name                  = "QNA-${local.base_prefix}-qnabot-router"
-  depends_on                     = [data.archive_file.qnabot_plugin]
+  depends_on                     = [data.archive_file.qnabot_plugin, data.archive_file.qnabot_plugin_layer]
   handler                        = "chatgpt-router.lambda_handler"
   filename                       = data.archive_file.qnabot_plugin.output_path
   memory_size                    = 256
@@ -124,7 +176,6 @@ resource "aws_lambda_function" "QNA-ChatGptRouter" {
   source_code_hash = data.archive_file.qnabot_plugin.output_base64sha256
   environment {
     variables = {
-      ACCOUNT = data.aws_caller_identity.current.account_id
       OPENAI_API_KEY_SECRET_ID = aws_secretsmanager_secret.openai_api_key.name
       CHATGPT_MODEL = var.chatgpt_model
       DYNAMODB_USER_MESSAGE_CACHE = aws_dynamodb_table.chatgpt-user-message-cache.name
@@ -132,3 +183,24 @@ resource "aws_lambda_function" "QNA-ChatGptRouter" {
     }
   }
 }
+
+# Define the Lambda function to handle updates to the QnABot Stack
+resource "aws_lambda_function" "QNA-OpenAiEmbedding" {
+  function_name                  = "QNA-${local.base_prefix}-chatgpt-embeddings"
+  depends_on                     = [data.archive_file.qnabot_plugin, data.archive_file.qnabot_plugin_layer]
+  handler                        = "chatgpt-embeddings.lambda_handler"
+  filename                       = data.archive_file.qnabot_plugin.output_path
+  memory_size                    = 256
+  role                           = aws_iam_role.qnabot_embedding_role.arn
+  runtime                        = "python3.9"
+  timeout                        = 120
+  layers = [aws_lambda_layer_version.qnabot_plugin_layer.arn]
+  source_code_hash = data.archive_file.qnabot_plugin.output_base64sha256
+  environment {
+    variables = {
+      OPENAI_API_KEY_SECRET_ID = aws_secretsmanager_secret.openai_api_key.name
+      EMBEDDING_MODEL = var.embedding_model
+    }
+  }
+}
+

@@ -31,16 +31,16 @@ resource "aws_s3_object" "plugin_layer_zip" {
   depends_on = [aws_s3_bucket_versioning.deployment_bucket_versioning]
   bucket = "${var.deployment_bucket_basename}-${var.region}"
   key    = "plugin-layer.zip"
-  source = "${path.module}/../plugin-layer.zip"
-  etag = filemd5("${path.module}/../plugin-layer.zip")
+  source = "${path.module}/../chatgpt-plugin/plugin-layer.zip"
+  etag = filemd5("${path.module}/../chatgpt-plugin/plugin-layer.zip")
 }
 
 resource "aws_s3_object" "plugin_layer" {
   depends_on = [aws_s3_bucket_versioning.deployment_bucket_versioning]
   bucket = "${var.deployment_bucket_basename}-${var.region}"
   key    = "plugin.zip"
-  source = "${path.module}/../plugin.zip"
-  etag = filemd5("${path.module}/../plugin.zip")
+  source = "${path.module}/../chatgpt-plugin/plugin.zip"
+  etag = filemd5("${path.module}/../chatgpt-plugin/plugin.zip")
 }
 
 resource "aws_s3_object" "plugin_yaml" {

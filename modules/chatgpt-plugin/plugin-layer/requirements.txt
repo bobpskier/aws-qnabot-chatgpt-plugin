@@ -1,1 +1,3 @@
-openai==0.27.2
+openai==0.27.3
+openai[datalib]==0.27.3
+

@@ -1,17 +1,19 @@
-# QnABot ChatGPT Plugin
+# QnABot OpenAI ChatGPT / Embeddings Plugin
 
 ## Introduction
 
-The QnABot ChatGPT Plugin provides mechanisms to integrate ChatGPT with QnABot.
-The configuration mechanisms accept the desired ChatGPT model. By default, chatgpt 3
-is used however if you have a valid api key for ChatGPT 4 this can be configured
-as well. 
+The QnABot OpenAI ChatGPT / Embeddings Plugin provides mechanisms to integrate OpenAI ChatGPT and Embeddings with QnABot.
+The configuration mechanisms accept the desired ChatGPT and Embeddings model. By default, "gpt-3.5-turbo"
+is used as the ChatGPT model and "text-embedding-ada-002" is used as the Embeddings model.
+f you have a valid api key for ChatGPT 4, "gpt-4" can be used as the ChatGPT model. 
 
-The plugin can operate either as a BOT router or can be used as a lambda function
-integrated with the no hits question. When used with no hits, ChatGPT is used as
-a fallback mechanism. 
+The plugin provides integration with ChatGPT as either a BOT router or as a lambda function
+integrated with the no_hits question. When used with no hits, ChatGPT is used as
+a fallback mechanism. This is exceptionally cool to provide fallback answers above those provided in QnABot.
 
-Both examples are provided in the sample chatgpt-plugin-qna.json.
+In addition, this plugin provides an alternate embeddings Lambda such that you do not hae to deploy and pay for
+sagemaker instances. Instead, you can use OpenAI directly and pay per request via OpenAI. Depending on your use model
+this may be less expensive and easier to manage going forward. 
 
 You can use this plugin on both Web and Voice (Connect) integrations. 
 
@@ -19,7 +21,7 @@ This project provides the following:
 
 * An easy-to-use CloudFormation template ready for to use for deployment
 * An alternate terraform mechanism to install AWS resources
-* Creates AWS resources provisioned include a lambda function, a lambda layer, a dynamodb table, and an IAM role/policy
+* Creates AWS resources provisioned including two lambda functions, a lambda layer, a dynamodb table, and two IAM role/policy one for each function
 * A sample qna json file with default questions that can be imported into QnABot designer
 
 ## Installation
@@ -31,10 +33,11 @@ This project provides the following:
 3) Specify the S3 url as https://tioth-chatgpt-plugin-resources-us-east-1.s3.us-east-1.amazonaws.com/primary.yaml and click on next
 4) Give your stack a name such as "qnabot-chatgpt-plugin"
 6) Change the model to an available chatgpt model if you want to use something other than 'gpt-3.5-turbo'
+7) Change the embedding model to an available embedding model if you want to use something other than 'text-embedding-ada-002'
 7) Change the MessageCacheExpirationInHours if needed. This is the length that a users prior messages will be maintained and sent to chatgpt as context for the current message
 8) Click on next and finish launching the new stack
 9) After the Stack finishes deployment open the AWS Secrets Manager console and open the secret QNA-chatgpt-openai-api-key
-10) Set the secret value to your OpenaiApiKey. If you don't have an openai account or key visit https://chat.openai.com/auth/login and setup your account
+10) Set the secret value to your OpenaiApiKey. If you don't have an openai account or key visit https://platform.openai.com/ and setup your account
 9) Download the file https://tioth-chatgpt-plugin-resources-us-east-1.s3.us-east-1.amazonaws.com/chatgpt-plugin-qna.json 
 10) Import this file to QnABot using the Designer UI.
 11) Modify the questions as needed.
@@ -98,7 +101,7 @@ terraform init
 terraform apply
 ```
 
-7) After terraform apply finishes deployment, log into your AWS account and open the AWS Secrets Manager console. Open the secret QNA-chatgpt-openai-api-key and set the value to your OpenAI API Key. If you don't have an openai account or key visit https://chat.openai.com/auth/login and setup your account
+7) After terraform apply finishes deployment, log into your AWS account and open the AWS Secrets Manager console. Open the secret QNA-chatgpt-openai-api-key and set the value to your OpenAI API Key. If you don't have an openai account or key visit https://platform.openai.com and setup your account
 8) If you change the project variable to something other than "chatgpt" you will need to change the Lambda used in
 the two questions the lambda. These are ChatGPT.1 and ChatGPT.2.
 8) Import the chatgpt-plugin-qna.json to QnABot using your Designer UI.
@@ -112,3 +115,15 @@ the two questions the lambda. These are ChatGPT.1 and ChatGPT.2.
 11) CustomNoMatches provides the no_hits functionality and pops up a Question and Button for the user to ask if the user wants to continue chatting with ChatGPT. Selecting yes will chain to the ChatGPT.2 question to continue the conversation.
 12) If you don't want to use ChatGPT as a fallback mechanism, then delete CustomNoMatches from QnABot.
 13) ChatGPT.2 is used by CustomNoMatches. 
+
+## Use of Embeddings
+To use the newly minted, embeddings Lambda function, the QnABot CloudFormation Stack must be updated to use the embeddings lambda function. 
+Update the stack and set
+* EmbeddingsApi to "LAMBDA"
+* EmbeddingsLambdaArn = "arn:aws:lambda:CHANGETOYOURREGION:CHANGETOYOURAWSACCOUNTID:function:QNA-chatgpt-chatgpt-embeddings"
+* EmbeddingsLambdaDimensions = 1536
+
+Once the stack update is finished, QnABot will be using Embeddings via this Lambda Function.
+
+Visit your OpenAI account to monitor usage and cost. 
+
