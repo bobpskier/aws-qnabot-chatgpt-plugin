@@ -23,13 +23,13 @@
       "args": [
         "QID::ChatGPT.2"
       ],
-      "a": "I didn't know the answer however ChatGPT provided the following:",
+      "a": "ChatGPT answered with ",
       "r": {
         "subTitle": "Continue conversation with ChatGPT?",
         "title": "Options"
       },
       "alt": {
-        "markdown": "I didn't know the answer however ChatGPT provided the following:"
+        "markdown": "**ChatGPT answered with**"
       },
       "l": "QNA-chatgpt-qnabot-router",
       "type": "qna",
