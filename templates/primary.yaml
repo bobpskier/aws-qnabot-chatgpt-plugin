@@ -179,7 +179,7 @@ Resources:
         Variables:
           OPENAI_API_KEY_SECRET_ID: "QNA-chatgpt-openai-api-key"
           EMBEDDING_MODEL: !Ref EmbeddingModel
-      FunctionName: "QNA-chatgpt-qnabot-router"
+      FunctionName: "QNA-chatgpt-qnabot-embeddings"
       Handler: "chatgpt-embeddings.lambda_handler"
       Architectures:
         - "x86_64"
