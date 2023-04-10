@@ -196,3 +196,20 @@ Resources:
         - !Ref LambdaLayerVersion
       EphemeralStorage:
         Size: 512
+
+Outputs:
+  BotRouterLambdaFunction:
+    Description: Lambda BotRouter Function
+    Value: !Ref LambdaFunction
+
+  BotRouterLambdaFunctionArn:
+    Description: Lambda BotRouter Function Arn
+    Value: !GetAtt LambdaFunction.Arn
+
+  EmbeddingsLambdaFunction:
+    Description: Lambda Embeddings Function
+    Value: !Ref LambdaFunctionEmbedding
+
+  EmbeddingsLambdaFunctionArn:
+    Description: Lambda Embeddings Function Arn
+    Value: !GetAtt LambdaFunctionEmbedding.Arn

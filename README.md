@@ -2,26 +2,26 @@
 
 ## Introduction
 
-The QnABot OpenAI ChatGPT / Embeddings Plugin provides mechanisms to integrate OpenAI ChatGPT and Embeddings with QnABot.
-The configuration mechanisms accept the desired ChatGPT and Embeddings model. By default, "gpt-3.5-turbo"
-is used as the ChatGPT model and "text-embedding-ada-002" is used as the Embeddings model.
-f you have a valid api key for ChatGPT 4, "gpt-4" can be used as the ChatGPT model. 
+The QnABot OpenAI ChatGPT / Embeddings Plugin provided in this project accomplishes 2 things.
 
-The plugin provides integration with ChatGPT as either a BOT router or as a lambda function
-integrated with the no_hits question. When used with no hits, ChatGPT is used as
-a fallback mechanism. This is exceptionally cool to provide fallback answers above those provided in QnABot.
+1. It Lets you use OpenAI Embeddings with the latest QnABot release, for semantic FAQ matching
+2. It lets you converse with chatGPT a) as a fallback to see if chatGPT knows the answer when there is no suitable FAQ in QnABot 
+or B) as a specialty bot that the user can elect to converse with at any tine using QnABot's bot routing feature.
 
-In addition, this plugin provides an alternate embeddings Lambda such that you do not hae to deploy and pay for
-sagemaker instances. Instead, you can use OpenAI directly and pay per request via OpenAI. Depending on your use model
-this may be less expensive and easier to manage going forward. 
+<img alt="ChatGPT In Action" src="./sample2.gif"/>
 
-You can use this plugin on both Web and Voice (Connect) integrations. 
+The plugin is configured with the desired ChatGPT model to use and the Embeddings model to use.
+By default, "gpt-3.5-turbo" is used as the ChatGPT model and "text-embedding-ada-002" is used as the Embeddings model.
+If you have a valid api key for ChatGPT 4, "gpt-4" can be used as the ChatGPT model.
+
+This plugin can be used on on the channels supported by Amazon Lex. Web based requests and Call Center's (Amazon Connect) can 
+make use of QnABot and this plugin.. 
 
 This project provides the following:
 
-* An easy-to-use CloudFormation template ready for to use for deployment
-* An alternate terraform mechanism to install AWS resources
-* Creates AWS resources provisioned including two lambda functions, a lambda layer, a dynamodb table, and two IAM role/policy one for each function
+* An easy-to-use CloudFormation template ready for deployment in the same regions supported by QnABot.
+* An alternate terraform mechanism to install the AWS resources
+* The project creates AWS resources: two lambda functions, a lambda layer, a dynamodb table, and two IAM roles/police.
 * A sample qna json file with default questions that can be imported into QnABot designer
 
 ## Installation
